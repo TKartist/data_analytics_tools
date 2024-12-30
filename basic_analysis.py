@@ -74,11 +74,15 @@ def exchange_viability(df):
 def analyze_exchange_rate(df, window_size=70):
     df["rolling_mean"] = df["Close"].rolling(window=window_size).mean()
     df = df[-750:]
-    df["good_period"] = df["rolling_mean"] > df["Close"]
+    df["good_period"] = np.where(df["rolling_mean"] > df["Close"], True, False)
+    df["mean2close_ratio"] = df["rolling_mean"] / df["Close"]
 
     plt.figure(figsize=(16, 9))
     plt.plot(df.index, df["Close"], label="USD/CHF=X")
     plt.plot(df.index, df["rolling_mean"], label=f"Rolling Mean {window_size}")
+    plt.plot(df.index, df["mean2close_ratio"], label="mean2close_ratio")
+    plt.axhline(y=1, color='red', linestyle='--', label='mean2close_standard')
+
 
     prev, start, end = False, None, None
     for index, info in df.iterrows():
@@ -110,8 +114,8 @@ def main():
         request_data_yfinance()
 
     df = pd.read_csv(target, index_col="Date")
-    exchange_viability(df)
-    # analyze_exchange_rate(df)
+    # exchange_viability(df)
+    analyze_exchange_rate(df)
 
 if __name__ == "__main__":
     main()
