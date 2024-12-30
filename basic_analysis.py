@@ -73,7 +73,7 @@ def exchange_viability(df):
 
 def analyze_exchange_rate(df, window_size=70):
     df["rolling_mean"] = df["Close"].rolling(window=window_size).mean()
-    df = df[-750:]
+    df = df[70:]
     df["good_period"] = np.where(df["rolling_mean"] > df["Close"], True, False)
     df["mean2close_ratio"] = df["rolling_mean"] / df["Close"]
 
@@ -84,9 +84,10 @@ def analyze_exchange_rate(df, window_size=70):
     plt.axhline(y=1, color='red', linestyle='--', label='mean2close_standard')
 
 
-    prev, start, end = False, None, None
+    prev, start, end, count = False, None, None, 0
     for index, info in df.iterrows():
         if info["good_period"]:
+            count += 1
             if not prev:
                 start = index
             else:
@@ -96,12 +97,15 @@ def analyze_exchange_rate(df, window_size=70):
                 continue
             else:
                 end = index
-        if prev and not info["good_period"]:
+                if count < 15:
+                    count = 0
+        if prev and not info["good_period"] and count > 14:
             plt.axvspan(start, end, color="grey", alpha=0.3)
+            count = 0
         prev = info["good_period"]
     plt.legend()
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1))
-    plt.xticks(rotation=45)
+    plt.xticks(rotation=90)
     plt.savefig("ex_rate.png")
 
 def main():
@@ -109,11 +113,11 @@ def main():
     period = "5y"
     interval = "1d"
     filenames = os.listdir(".")
-    target = f"{target}_{period}_{interval}_closing_prices.csv"
-    if target not in filenames:
-        request_data_yfinance()
+    file = f"{target}_{period}_{interval}_closing_prices.csv"
+    if file not in filenames:
+        request_data_yfinance(target, period, interval)
 
-    df = pd.read_csv(target, index_col="Date")
+    df = pd.read_csv(file, index_col="Date")
     # exchange_viability(df)
     analyze_exchange_rate(df)
 
