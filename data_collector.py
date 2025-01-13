@@ -18,6 +18,6 @@ def request_data_yfinance(target, period, interval):
     except Exception as e:
         print(f"An error found: {e}")
 
-# request_data_yfinance("USDCHF=X", "5y", "1d")
+# request_data_yfinance("USDEUR=X", "5y", "1d")
 
 

@@ -109,7 +109,7 @@ def analyze_exchange_rate(df, window_size=70):
     plt.savefig("ex_rate.png")
 
 def main():
-    target = "USDCHF=X"
+    target = "USDEUR=X"
     period = "5y"
     interval = "1d"
     filenames = os.listdir(".")
